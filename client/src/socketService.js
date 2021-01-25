@@ -2,7 +2,6 @@ import io from "socket.io-client";
 
 let socket;
 
-//socket connection initialization
 export const initSocket = () => {
   socket = io("http://localhost:3000", {
     transports: ["websocket"],
@@ -12,7 +11,6 @@ export const initSocket = () => {
   socket.on("connect", () => console.log("Connected!"));
 };
 
-//when client disconnected, we use at unmount moment
 export const disconnectSocket = () => {
   console.log("Disconnecting...");
   if (socket) socket.disconnect();
