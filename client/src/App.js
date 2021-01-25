@@ -1,14 +1,27 @@
 import "./App.css";
 import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
 import { SketchPicker } from "react-color";
+import {
+  disconnectSocket,
+  initSocket,
+  subscribeToColors,
+  sendColor,
+} from "./socketService";
 
 function App() {
-  const [log, setLog] = useState([]);
   const [backColor, setBackColor] = useState({});
+  const [displayColorPicker, setDisplayColorPicker] = useState(false);
 
   const handleChangeComplete = (color) => {
     setBackColor({ background: color.hex });
+  };
+  const handleClick = () => {
+    console.log("clicked");
+    setDisplayColorPicker(!displayColorPicker);
+  };
+
+  const handleSend = () => {
+    sendColor(backColor);
   };
 
   useEffect(() => {
@@ -16,23 +29,24 @@ function App() {
   }, [backColor]);
 
   useEffect(() => {
-    const socket = io("http://localhost:3000", {
-      transports: ["websocket"],
-    });
-    socket.on("new-user", ({ title }) => {
-      setLog((p) => [...p, { title }]);
-    });
+    initSocket();
+    subscribeToColors((recievedColor) => setBackColor(recievedColor));
+    return () => disconnectSocket();
   }, []);
 
   return (
     <div className="App">
-      <SketchPicker
-        color={backColor.background}
-        onChangeComplete={handleChangeComplete}
-      />
-      {log.map((item, i) => (
-        <div key={i}>{item.title}</div>
-      ))}
+      <button onClick={handleClick}>Pick Color</button>
+      {displayColorPicker ? (
+        <div>
+          <SketchPicker
+            color={backColor.background}
+            onChangeComplete={handleChangeComplete}
+          />
+        </div>
+      ) : null}
+
+      <button onClick={handleSend}>Send</button>
     </div>
   );
 }

@@ -9,7 +9,9 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
   console.log("a user connected");
 
-  socket.broadcast.emit("new-user", { title: "A new user joined" });
+  socket.on("new-color", (color) => {
+    socket.broadcast.emit("receive-color", color);
+  });
 
   socket.on("disconnect", () => console.log("a user disconnected"));
 });
